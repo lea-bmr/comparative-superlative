@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Compare me! Üben</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/*
+VOICE: calm, clear practice tool for 11-year-olds, one task at a time.
+IDEA: a single exercise-book card from the Jungle Grammar set.
+PICTURE: the sentence itself with a large typing gap is the centre of the screen.
+COLOUR and TYPE: cream ground, jungle green ink, orange accent; Fredoka.
+LAYOUT: header with levels, task card in the upper half (keyboard-safe), progress and rule below; fits 100dvh.
+*/
+:root{color-scheme:light dark;
+ --bg:light-dark(#fbf5e6,#16211a);--card:light-dark(#fffdf7,#1f2d24);--ink:light-dark(#2e2418,#f3ecdc);
+ --muted:light-dark(#7a6a55,#b8ad98);--green:light-dark(#23472b,#9fd889);--leaf:light-dark(#e3efd6,#29402f);
+ --orange:#e8780f;--line:light-dark(#3a2a1c,#d9cdb6);--ok:#2f8a3a;--bad:#c9412f;--soft:light-dark(#f3e6c7,#2a3a2f)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 'Fredoka',system-ui,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.app{height:100dvh;display:grid;grid-template-rows:auto 1fr;padding:max(10px,env(safe-area-inset-top)) clamp(12px,3vw,32px) clamp(10px,2vh,20px);gap:clamp(8px,1.6vh,16px)}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(20px,3vh,28px);color:var(--green);font-weight:700;margin-right:auto}
+.lv{display:flex;gap:8px}
+.lv button{font:600 clamp(14px,2vh,17px) 'Fredoka',system-ui,sans-serif;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 16px;min-height:44px;cursor:pointer}
+.lv button.on{background:var(--green);color:var(--bg);border-color:var(--green)}
+.score{font-weight:600;color:var(--muted);font-size:clamp(14px,2vh,17px)}
+main{display:grid;grid-template-rows:auto auto 1fr;gap:clamp(8px,1.6vh,16px);min-height:0}
+.card{background:var(--card);border:2.5px solid var(--line);border-radius:22px;box-shadow:0 5px 0 rgba(58,42,28,.18);padding:clamp(14px,2.6vh,28px) clamp(16px,3vw,36px);display:flex;flex-direction:column;gap:clamp(8px,1.6vh,16px)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tag{font-weight:600;font-size:14px;padding:3px 12px;border-radius:999px;background:var(--leaf);color:var(--green)}
+.num{color:var(--muted);font-size:15px}
+.de{color:var(--muted);font-size:clamp(14px,2vh,17px)}
+.info{align-self:flex-start;background:var(--soft);border-radius:12px;padding:6px 14px;font-size:clamp(15px,2.3vh,19px);font-weight:500}
+.sent{font-size:clamp(22px,4.2vh,38px);font-weight:500;line-height:1.6;text-wrap:balance}
+.sent input{font:600 1em 'Fredoka',system-ui,sans-serif;color:var(--ink);background:var(--soft);border:none;border-bottom:3px solid var(--line);border-radius:10px 10px 0 0;padding:0 10px;width:8.5em;max-width:100%;text-align:center;outline:none}
+.sent input:focus{border-bottom-color:var(--orange)}
+.sent input.ok{border-bottom-color:var(--ok);color:var(--ok)}
+.sent input.bad{border-bottom-color:var(--bad)}
+.adj{color:var(--orange);font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:600 clamp(16px,2.4vh,20px) 'Fredoka',system-ui,sans-serif;border:2.5px solid var(--line);border-radius:14px;padding:10px 22px;min-height:48px;cursor:pointer;background:var(--card);color:var(--ink);box-shadow:0 4px 0 var(--line)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.btn.go{background:var(--orange);color:#fff;border-color:var(--line)}
+.btn.ghost{box-shadow:none;border-style:dashed;font-weight:500}
+.btn:focus-visible,.lv button:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.fb{min-height:1.4em;font-size:clamp(16px,2.4vh,20px);font-weight:500}
+.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}
+.dots{display:flex;gap:6px;justify-content:center}
+.dots i{width:clamp(14px,2vh,20px);height:clamp(14px,2vh,20px);border-radius:50%;border:2px solid var(--line);background:var(--card)}
+.dots i.ok{background:var(--ok);border-color:var(--ok)}.dots i.half{background:var(--orange);border-color:var(--orange)}.dots i.miss{background:var(--bad);border-color:var(--bad)}.dots i.now{outline:3px solid var(--orange);outline-offset:2px}
+.rule{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-self:end}
+.rule div{background:var(--leaf);border-radius:14px;padding:clamp(6px,1.2vh,12px) 12px;font-size:clamp(13px,1.9vh,16px)}
+.rule b{display:block;color:var(--green);font-size:clamp(14px,2vh,17px)}
+.claps{letter-spacing:2px;color:var(--orange)}
+.done{align-items:center;text-align:center;justify-content:center}
+.done h2{margin:0;font-size:clamp(26px,5vh,42px);color:var(--green)}
+.big{font-size:clamp(40px,8vh,72px);font-weight:700;color:var(--orange);line-height:1}
+@media(max-width:600px){.rule{grid-template-columns:1fr}.rule div{padding:6px 10px}}
+@media(max-height:560px){.rule{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+ <header>
+  <h1>Compare me!</h1>
+  <div class="lv" id="lv">
+   <button data-l="1">1 · Comparative</button>
+   <button data-l="2">2 · Superlative</button>
+   <button data-l="3">3 · Mixed</button>
+  </div>
+  <span class="score" id="score"></span>
+ </header>
+ <main id="main"></main>
+</div>
+<script>
+{
+/* ---------- word knowledge ---------- */
+const SYL={tall:1,big:1,small:1,heavy:2,light:1,fast:1,slow:1,strong:1,dangerous:3,cheap:1,expensive:3,old:1,young:1,short:1,long:1,warm:1,cold:1,hot:1,good:0,bad:0,funny:2,happy:2,easy:2,beautiful:3,comfortable:3,interesting:3,exciting:3,difficult:3,nice:1,cute:1,colourful:3,friendly:2,high:1,wet:1,dirty:2,busy:2,popular:3,delicious:3,healthy:2,loud:1,quiet:2,clean:1,large:1,thin:1,sad:1,early:2,noisy:2,lazy:2,dry:1};
+const IRR={good:['better','the best'],bad:['worse','the worst']};
+const DOUBLE=['big','hot','wet','thin','sad'];
+function forms(a){if(IRR[a])return IRR[a];
+ if(a==='quiet')return['quieter','the quietest'];
+ if(a==='dry')return['drier','the driest'];
+ const n=SYL[a];
+ if(n>=3)return['more '+a,'the most '+a];
+ if(/y$/.test(a))return[a.slice(0,-1)+'ier','the '+a.slice(0,-1)+'iest'];
+ if(DOUBLE.includes(a))return[a+a.slice(-1)+'er','the '+a+a.slice(-1)+'est'];
+ if(/e$/.test(a))return[a+'r','the '+a+'st'];
+ return[a+'er','the '+a+'est'];}
+const SPECIAL={big:'Doppelter Buchstabe: big → bigger / the biggest.',hot:'Doppelter Buchstabe: hot → hotter / the hottest.',wet:'Doppelter Buchstabe: wet → wetter.',thin:'Doppelter Buchstabe: thin → thinner.',sad:'Doppelter Buchstabe: sad → sadder.',nice:'Wort endet auf -e → nur -r bzw. -st anhängen.',cute:'Wort endet auf -e → nur -r bzw. -st anhängen.',large:'Wort endet auf -e → nur -r bzw. -st anhängen.',good:'good ist unregelmäßig: good – better – the best.',bad:'bad ist unregelmäßig: bad – worse – the worst.',quiet:'quiet: quieter / the quietest.',dry:'dry: y wird zu i → drier / the driest.'};
+
+/* ---------- helpers ---------- */
+const R=n=>Math.floor(Math.random()*n), pick=a=>a[R(a.length)];
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const PL=['jeans','trainers','boots','socks','gloves','shorts','trousers','sandals'];
+const be=n=>PL.includes(n)?'are':'is';
+function mk(k,info,subj,adj,b){const f=forms(adj);return{k,info,a:`${subj} ${subj.startsWith('My ')||/^[A-Z][a-z]+$/.test(subj)?'is':be(subj.replace(/^The /,''))}`,ans:k==='c'?f[0]:f[1],adj,b};}
+
+/* ---------- generator 1: animal rankings (most → least) ---------- */
+const RANK={tall:['giraffe','elephant','horse','dog','rabbit','mouse'],big:['whale','elephant','horse','dog','cat','mouse'],
+ small:['mouse','rabbit','cat','dog','horse','elephant'],heavy:['elephant','horse','lion','dog','cat','mouse'],
+ light:['mouse','rabbit','cat','dog','lion','elephant'],fast:['cheetah','horse','dog','cat','turtle','snail'],
+ slow:['snail','turtle','penguin','dog','horse','cheetah'],strong:['elephant','horse','lion','dog','cat','mouse'],
+ dangerous:['crocodile','lion','snake','dog','rabbit','mouse'],long:['crocodile','snake','dog','cat','mouse']};
+function genAnimal(k){const adj=pick(Object.keys(RANK)),L=RANK[adj];
+ if(k==='c'){let x=R(L.length-2),y=x+2+R(L.length-x-2);
+  return mk('c','',`The ${L[x]}`,adj,`than the ${L[y]}.`);}
+ const idx=shuffle([...L.keys()]).slice(0,3).sort((p,q)=>p-q);
+ const three=shuffle(idx.map(j=>L[j]));
+ const lab='Vergleiche die drei Tiere:';
+ return mk('s',`${lab} ${three.join(' · ')}`,`The ${L[idx[0]]}`,adj,'of the three.');}
+
+/* ---------- generator 2: clothes prices ---------- */
+const CLOTHES=['cap','T-shirt','scarf','jumper','jeans','dress','trainers','coat','boots','hoodie','socks','gloves','skirt','shorts','jacket','trousers','sandals','hat'];
+function prices(n){const s=new Set();while(s.size<n)s.add(5+R(86));return[...s];}
+function genPrice(k){const adj=pick(['cheap','expensive']),n=k==='c'?2:3,it=shuffle(CLOTHES).slice(0,n),p=prices(n);
+ const rows=it.map((x,j)=>[x,p[j]]);const info=rows.map(r=>`${r[0]}: ${r[1]} €`).join(' · ');
+ const sorted=[...rows].sort((a,b)=>adj==='cheap'?a[1]-b[1]:b[1]-a[1]);
+ return k==='c'?mk('c',info,`The ${sorted[0][0]}`,adj,`than the ${sorted[1][0]}.`):mk('s',info,`The ${sorted[0][0]}`,adj,'of the three.');}
+
+/* ---------- generator 3: people (age, height, running time) ---------- */
+const NAMES=['Joshua','Elliot','Nisha','Katie','Tom','Lisa','Ben','Mia','Emma','Leon','Sara','Finn','Lena','Max','Anna','Noah','Ella','Jack','Lily','Paul'];
+function genPeople(k){const n=k==='c'?2:3,p=shuffle(NAMES).slice(0,n),t=pick(['age','height','run']);
+ let vals,adj,info,unit;
+ if(t==='age'){vals=shuffle([9,10,11,12,13,14,15]).slice(0,n);adj=pick(['old','young']);unit=v=>`${v} years`;}
+ else if(t==='height'){vals=shuffle([128,133,138,142,147,151,156,160]).slice(0,n);adj=pick(['tall','short']);unit=v=>`${v} cm`;}
+ else{vals=shuffle([13,14,15,16,17,18,19]).slice(0,n);adj=pick(['fast','slow']);unit=v=>`${v} sec`;}
+ const rows=p.map((x,j)=>[x,vals[j]]);
+ info=(t==='run'?'100 m: ':'')+rows.map(r=>`${r[0]}: ${unit(r[1])}`).join(' · ');
+ const up=(adj==='old'||adj==='tall'||adj==='slow');
+ const s=[...rows].sort((a,b)=>up?b[1]-a[1]:a[1]-b[1]);
+ return k==='c'?mk('c',info,s[0][0],adj,`than ${s[1][0]}.`):mk('s',info,s[0][0],adj,'of the three.');}
+
+/* ---------- generator 4: lengths of clothes ---------- */
+const COLS=['red','blue','green','black','yellow','white','pink','grey'];
+function genLength(k){const thing=pick(['scarf','dress','skirt','coat']),n=k==='c'?2:3,c=shuffle(COLS).slice(0,n);
+ const v=shuffle(thing==='scarf'?[80,100,120,150,180,200]:[50,60,70,80,90,110]).slice(0,n);
+ const adj=pick(['long','short']),rows=c.map((x,j)=>[x,v[j]]);
+ const info=rows.map(r=>`${r[0]} ${thing}: ${r[1]} cm`).join(' · ');
+ const s=[...rows].sort((a,b)=>adj==='long'?b[1]-a[1]:a[1]-b[1]);
+ return k==='c'?mk('c',info,`The ${s[0][0]} ${thing}`,adj,`than the ${s[1][0]} ${thing}.`):mk('s',info,`The ${s[0][0]} ${thing}`,adj,'of the three.');}
+
+/* ---------- generator 5: weather ---------- */
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+function genWeather(k){const n=k==='c'?2:3,d=shuffle(DAYS).slice(0,n),v=shuffle([2,5,8,11,14,17,21,25,29,33]).slice(0,n);
+ const adj=Math.max(...v)>24?pick(['hot','cold','warm']):pick(['warm','cold']);
+ const rows=d.map((x,j)=>[x,v[j]]),info=rows.map(r=>`${r[0]}: ${r[1]} °C`).join(' · ');
+ const s=[...rows].sort((a,b)=>adj==='cold'?a[1]-b[1]:b[1]-a[1]);
+ return k==='c'?mk('c',info,s[0][0],adj,`than ${s[1][0]}.`):mk('s',info,s[0][0],adj,'of the three days.');}
+
+/* ---------- fixed sentences ---------- */
+const FC=[["My new trainers","comfortable","than my old trainers."],["Maths","difficult","than Art for me."],["This book","interesting","than that book."],["The film","exciting","than the book."],["My dog","friendly","than my neighbour's dog."],["The test today","easy","than the test last week."],["Pizza","delicious","than soup."],["My little brother","happy","than me today."],["This jumper","colourful","than that jumper."],["The red dress","beautiful","than the blue dress."],["My new cap","good","than my old cap."],["The weather today","bad","than yesterday."],["Your room","dirty","than my room."],["Apples","healthy","than chips."],["Football","popular","than tennis in my class."],["The classroom","noisy","than the library."],["My cat","lazy","than my dog."],["The mountain","high","than the hill."],["London","busy","than my town."],["My story","funny","than your story."],["The baby","cute","than the teddy."],["Our garden","large","than your garden."],["The kitchen","clean","than the bathroom."],["Lunch at school","nice","than lunch at home."],["My English mark","good","than my German mark."],["My cold","bad","than yesterday."],["The library","quiet","than the playground."],["Summer","hot","than spring."],["Winter","cold","than autumn."],["My bag","heavy","than your bag."],["The sea","wet","than the beach."],["The desert","dry","than the forest."]];
+const FS=[["The cheetah","fast","animal on land."],["The giraffe","tall","animal in the world."],["The blue whale","big","animal in the world."],["The swimsuit","colourful","of all my clothes."],["Maths","difficult","subject for me."],["This","good","day of my life!"],["That","bad","film I know."],["Pizza","delicious","food in the world."],["My grandma","old","person in my family."],["My baby sister","young","person in my family."],["Mount Everest","high","mountain in the world."],["Christmas","exciting","day of the year."],["My trainers","comfortable","shoes I have."],["This T-shirt","cheap","thing in the shop."],["Football","popular","sport in my class."],["My cat","lazy","animal in our house."],["The test","easy","test this year."],["My uncle","funny","man in my family."],["The coat","warm","thing I have."],["This story","interesting","story in the book."],["Our classroom","noisy","room in the school."],["The library","quiet","room in the school."],["December","cold","month of the year."],["July","hot","month of the year."],["The puppy","cute","dog in the shop."],["My best friend","friendly","girl in my class."],["The red dress","beautiful","dress in the shop."],["Today","happy","day of my week."],["The snail","slow","animal in the garden."],["The elephant","heavy","animal in the zoo."],["The shark","dangerous","fish in the sea."],["The Sahara","dry","place I know."]];
+function genFixed(k){const src=k==='c'?FC:FS,[s,adj,b]=pick(src);
+ const f=forms(adj),plural=/s$/.test(s)&&!['Maths','Christmas'].includes(s)&&!/^My |^The /.test(s)?true:/trainers|Apples/.test(s);
+ const verb=s==='This'||s==='That'?'is':plural?'are':'is';
+ return{k,info:'',a:`${s} ${verb}`,ans:k==='c'?f[0]:f[1],adj,b};}
+
+const GENS=[[genAnimal,3],[genPrice,3],[genPeople,2],[genLength,2],[genWeather,2],[genFixed,4]];
+function gen(k){let t=Math.random()*GENS.reduce((s,g)=>s+g[1],0);for(const [g,w] of GENS){if((t-=w)<0)return g(k);}return genFixed(k);}
+
+/* ---------- recently used (per device, optional) ---------- */
+let recent=[];try{recent=JSON.parse(localStorage.getItem('cmp-recent')||'[]');}catch(e){}
+function remember(keys){recent=[...keys,...recent].slice(0,120);try{localStorage.setItem('cmp-recent',JSON.stringify(recent));}catch(e){}}
+
+/* ---------- app ---------- */
+const N=10, main=document.getElementById('main'), scoreEl=document.getElementById('score');
+let level=1,list=[],i=0,tries=0,res=[],locked=false;
+const norm=s=>s.toLowerCase().replace(/[.!?,]/g,'').replace(/\s+/g,' ').trim();
+function build(l){const out=[],seen=new Set();let guard=0;
+ while(out.length<N&&guard++<500){const k=l===1?'c':l===2?'s':(out.length<5?'c':'s');
+  const it=gen(k),key=it.a+'|'+it.adj+'|'+it.b+'|'+it.info;
+  const adjCount=out.filter(o=>o.adj===it.adj).length;
+  if(seen.has(key)||(guard<300&&recent.includes(key))||adjCount>=2)continue;
+  seen.add(key);it.key=key;out.push(it);}
+ remember(out.map(o=>o.key));return l===3?shuffle(out):out;}
+function start(l){level=l;i=0;tries=0;res=[];
+ document.querySelectorAll('#lv button').forEach(b=>b.classList.toggle('on',+b.dataset.l===l));
+ list=build(l);show();}
+function claps(n){return n?'●'.repeat(Math.min(n,3)):'–'}
+function tipText(adj,k){const n=SYL[adj];
+ if(n===0)return SPECIAL[adj];
+ const e=k==='c'?['-er','-ier','more']:['the … -est','the … -iest','the most'];
+ let t=`${adj}: <span class="claps">${claps(n)}</span> ${n>=3?'3 Silben oder mehr':n+' '+(n===1?'Silbe':'Silben')} → `;
+ t+=n===1?e[0]:n===2?e[1]+' (y wird zu i)':e[2];
+ if(SPECIAL[adj])t+='<br>'+SPECIAL[adj];
+ if(k==='s')t+='<br>Denk an <b>the</b>!';return t;}
+function dots(){return '<div class="dots">'+list.map((_,j)=>`<i class="${res[j]||''}${j===i?' now':''}"></i>`).join('')+'</div>';}
+function updScore(){const p=res.filter(r=>r==='ok').length;scoreEl.textContent=`★ ${p} von ${N}`;}
+function rule(){const c=level!==2,s=level!==1;
+ const t=(a,b)=>c&&s?`${a} / ${b}`:c?a:b;
+ return `<div class="rule"><div><b>● 1 Silbe</b>${t('tall → taller','the tallest')}</div><div><b>●● 2 Silben, -y</b>${t('heavy → heavier','the heaviest')}</div><div><b>●●● 3 Silben</b>${t('more expensive','the most expensive')}</div></div>`;}
+function show(){updScore();
+ if(i>=N)return finish();
+ const it=list[i];tries=0;locked=false;
+ const tag=level===3?'Comparative or superlative?':it.k==='c'?'Comparative':'Superlative';
+ const de=level===3?'Schau genau: Steht <b>than</b> im Satz?':it.k==='c'?'Vergleiche zwei Dinge.':'Wer ist die Nummer 1? Denk an <b>the</b>.';
+ main.innerHTML=`<section class="card">
+  <div class="top"><span class="tag">${tag}</span><span class="num">Aufgabe ${i+1} / ${N}</span></div>
+  <div class="de">${de}</div>
+  ${it.info?`<div class="info">${it.info}</div>`:''}
+  <div class="sent">${it.a} <input id="inp" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Antwort"> <span class="adj">(${it.adj})</span> ${it.b}</div>
+  <div class="row"><button class="btn go" id="chk">Prüfen</button><button class="btn ghost" id="tip">Tipp</button><button class="btn" id="nxt" hidden>Weiter →</button></div>
+  <div class="fb" id="fb"></div></section>${dots()}${rule()}`;
+ const inp=document.getElementById('inp');
+ inp.focus({preventScroll:true});
+ inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();locked?next():check();}});
+ document.getElementById('chk').onclick=check;
+ document.getElementById('nxt').onclick=next;
+ document.getElementById('tip').onclick=()=>{const f=document.getElementById('fb');f.className='fb';f.innerHTML=tipText(it.adj,it.k);};}
+function why(v,ans,adj,k){const n=SYL[adj];
+ if(!v)return 'Schreib zuerst etwas in die Lücke.';
+ if(k==='s'&&v===ans.replace(/^the /,''))return 'Fast! Vor den Superlativ gehört <b>the</b>.';
+ if(k==='c'&&(v.startsWith('the ')||/est$/.test(v)))return 'Im Satz steht <b>than</b> → du brauchst den Comparative.';
+ if(k==='s'&&!v.startsWith('the ')&&(/er$/.test(v)||v.startsWith('more ')||['better','worse'].includes(v)))return 'Hier steht kein <b>than</b> → Superlative mit <b>the</b>.';
+ if(n===0)return SPECIAL[adj];
+ if(/(^|\s)(more|most)\s/.test(v)&&n<3)return `Klatsch mal: ${adj} hat nur ${n} ${n===1?'Silbe':'Silben'} → kein more/most.`;
+ if(n>=3&&/(er|est)$/.test(v)&&!/(more|most)\s/.test(v))return `Klatsch mal: ${adj} hat 3 Silben oder mehr → ${k==='c'?'more':'the most'} + ${adj}.`;
+ if(n===2&&/y(er|est)$/.test(v))return 'Das y wird zu i: '+(k==='c'?'-ier':'-iest')+'.';
+ if(SPECIAL[adj])return SPECIAL[adj];
+ return 'Noch nicht richtig. Prüfe die Rechtschreibung und versuch es nochmal.';}
+function check(){if(locked)return;
+ const it=list[i],inp=document.getElementById('inp'),fb=document.getElementById('fb'),v=norm(inp.value);
+ if(v===it.ans){locked=true;inp.className='ok';inp.readOnly=true;fb.className='fb ok';
+  res[i]=tries===0?'ok':'half';fb.innerHTML=tries===0?'Richtig! ★':'Richtig! Gut verbessert.';
+  endTask();return;}
+ if(!v){fb.className='fb bad';fb.innerHTML=why(v,it.ans,it.adj,it.k);return;}
+ tries++;inp.className='bad';fb.className='fb bad';
+ if(tries>=3){locked=true;res[i]='miss';inp.readOnly=true;fb.innerHTML=`Lösung: <b>${it.ans}</b>. Schreib sie dir ab!`;endTask();return;}
+ fb.innerHTML=why(v,it.ans,it.adj,it.k)+(tries===2?' (letzter Versuch)':'');
+ inp.focus({preventScroll:true});inp.select();}
+function endTask(){document.getElementById('chk').hidden=true;document.getElementById('tip').hidden=true;
+ const n=document.getElementById('nxt');n.hidden=false;n.focus({preventScroll:true});
+ document.querySelector('.dots').outerHTML=dots();updScore();}
+function next(){i++;show();}
+function finish(){const p=res.filter(r=>r==='ok').length,h=res.filter(r=>r==='half').length;
+ const msg=p>=9?'Super! Du bist ein Grammar-Profi.':p>=6?'Gut gemacht! Übe noch ein bisschen.':'Lies dir den Merkkasten nochmal durch und versuch es erneut.';
+ main.innerHTML=`<section class="card done"><h2>Level ${level} geschafft!</h2>
+  <div class="big">★ ${p} / ${N}</div><div class="de">beim ersten Versuch richtig${h?` · ${h}× verbessert`:''}</div>
+  <div style="font-size:clamp(18px,2.8vh,24px)">${msg}</div>
+  <div class="row" style="justify-content:center"><button class="btn" id="again">Neue Sätze</button>${level<3?`<button class="btn go" id="up">Level ${level+1} →</button>`:''}</div></section>${dots()}`;
+ document.getElementById('again').onclick=()=>start(level);
+ const up=document.getElementById('up');if(up)up.onclick=()=>start(level+1);}
+document.getElementById('lv').addEventListener('click',e=>{const b=e.target.closest('button');if(b)start(+b.dataset.l);});
+window.__test={gen,forms,build};
+start(1);
+}
+</script>
+</body>
+</html>
